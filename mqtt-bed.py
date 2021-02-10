@@ -4,6 +4,8 @@ import os
 import subprocess
 import paho.mqtt.client as mqtt
 
+DEBUG=0
+
 from config import *
 
 VERSION = 0.8
