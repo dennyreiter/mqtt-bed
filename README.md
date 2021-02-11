@@ -19,8 +19,9 @@ LE Scan ...
 7C:EC:79:FF:6D:02 base-i4.00000233
 $
 ```
+or if you have the [Serta MP Remote app](https://apk-dl.com/serta-mp-remote/) installed on your phone, you can find the mac address there.
 
-Your bed will likely have a name starting with *base*. That is the address you want to put in the config.py file.
+Your bed will likely have a name starting with *base-i4*. That is the address you want to put in the config.py file.
 
 ## Resources
 * https://github.com/danisla/iot-bed
