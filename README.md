@@ -5,8 +5,8 @@ MQTT control for Serta adjustable beds with Bluetooth
 Based upon code from https://github.com/danisla/iot-bed
 
 ## Requirements
-It requires [https://pypi.org/project/paho-mqtt/][paho-mqtt], which can be installed with Pip, and also [http://manpages.ubuntu.com/manpages/cosmic/man1/gatttool.1.html][gatttool], part of the [http://www.bluez.org/][bluez] package (sudo apt install bluez.)
-[http://manpages.ubuntu.com/manpages/focal/en/man1/hcitool.1.html][hcitool] will probably be needed, to find the address of your bed, which is part of bluez also.
+It requires [paho-mqtt](https://pypi.org/project/paho-mqtt/), which can be installed with Pip, and also [gatttool](http://manpages.ubuntu.com/manpages/cosmic/man1/gatttool.1.html), part of the [bluez](http://www.bluez.org/) package (sudo apt install bluez.)
+[hcitool](http://manpages.ubuntu.com/manpages/focal/en/man1/hcitool.1.html) will probably be needed, to find the address of your bed, which is part of bluez also.
 
 ## Finding the address of your bed
 ```
@@ -22,6 +22,6 @@ $
 
 Your bed will likely have a name starting with *base*. That is the address you want to put in the config.py file.
 
-##Resources
+## Resources
 * https://github.com/danisla/iot-bed
 * https://www.jaredwolff.com/get-started-with-bluetooth-low-energy/
