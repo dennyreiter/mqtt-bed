@@ -1,0 +1,32 @@
+homeassistant:
+
+script:
+  lower_bed:
+    alias: Lower the Bed
+    sequence:
+      - service: mqtt.publish
+        data_template:
+          topic: bed
+          payload: Flat Preset
+  sit_up_bed:
+    alias: Sit the Bed Up
+    sequence:
+      - service: mqtt.publish
+        data_template:
+          topic: bed
+          payload: Head Up Preset
+  zerog_bed:
+    alias: Set the Bed to ZeroG
+    sequence:
+      - service: mqtt.publish
+        data_template:
+          topic: bed
+          payload: ZeroG Preset
+  start_bed_massage:
+    alias: Start Bed Massage
+    mode: single
+    sequence:
+      - service: mqtt.publish
+        data_template:
+          topic: bed
+          payload: Head and Foot Massage On
