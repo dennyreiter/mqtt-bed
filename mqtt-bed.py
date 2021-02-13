@@ -1,10 +1,12 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import os
 import subprocess
+import time
 import paho.mqtt.client as mqtt
+from gattlib import GATTRequester
 
-DEBUG=0
+DEBUG = 0
 
 from config import *
 
@@ -33,46 +35,30 @@ class sertaBLEController:
             "Lift Foot": "e5fe160400000002",
             "Lower Foot": "e5fe1608000000fe",
         }
+        self.req = GATTRequester(addr)
         if DEBUG:
             print("Initialized control for %s" % addr)
 
     def sendCommand(self, name):
         cmd = self.commands.get(name, None)
         if DEBUG:
-            print("Readying command: %s" % cmd)
+            print("Readying command: %s" % str(cmd))
         if cmd is None:
-            raise Exception("Command not found: " + name)
+            raise Exception("Command not found: " + str(name))
+        if DEBUG:
+            print(bytearray.fromhex(cmd))
 
-        for retry in range(3):
-            if DEBUG:
-                print("Sending BLE command: %s" % cmd)
-            cmd_args = [
-                "/usr/bin/gatttool",
-                "-b",
-                self.addr,
-                "--char-write-req",
-                "--handle",
-                self.handle,
-                "--value",
-                cmd,
-            ]
-            if DEBUG:
-                print(cmd_args)
-            if self.pretend:
-                (" ".join(cmd_args))
-                res = 0
-            else:
-                res = subprocess.call(cmd_args)
-            if DEBUG:
-                print("BLE command sent")
-            if res == 0:
-                break
-            else:
-                if DEBUG:
-                    print("BLE write error, retrying in 2 seconds")
-                time.sleep(2)
-
-        return res == 0
+        if DEBUG:
+            print("Sending BLE command: %s" % cmd)
+        if self.pretend:
+            (" ".join(cmd_args))
+            res = 0
+        else:
+            res = self.req.write_by_handle(0x0020, bytes.fromhex(cmd))
+        if DEBUG:
+            print("BLE command sent")
+            print(res)
+        return res
 
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -88,11 +74,11 @@ def on_connect(client, userdata, flags, rc):
 # The callback for when a PUBLISH message is received from the server.
 def on_message(client, userdata, msg):
     if DEBUG:
-        print(msg.topic + " " + str(msg.payload))
+        print(msg.topic + " " + msg.payload.decode("utf-8"))
     if DEBUG:
-        print("Executing BLE command: " + str(msg.payload))
+        print("Executing BLE command: " + msg.payload.decode("utf-8"))
     ble = userdata
-    ble.sendCommand(msg.payload)
+    ble.sendCommand(msg.payload.decode("utf-8"))
 
 
 def main():
