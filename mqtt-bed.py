@@ -1,11 +1,10 @@
 #!/home/pi/.pyenv/shims/python
 
 import os
-import subprocess
 import asyncio
 from contextlib import AsyncExitStack, asynccontextmanager
-from random import randrange
 from asyncio_mqtt import Client, MqttError
+from gattlib import GATTRequester
 
 # mqtt-bed default config values. Set these in config.py yourself.
 BED_ADDRESS = "7C:EC:79:FF:6D:02"
@@ -23,10 +22,15 @@ DEBUG = 0
 from config import *
 
 
+class Requester(GATTRequester):
+    def on_notification(self, handle, data):
+        return
+
+
 class sertaBLEController:
-    def __init__(self, addr):
+    def __init__(self, addr, pretend=False):
+        self.pretend = pretend
         self.addr = addr
-        self.handle = "0x0020"
         self.commands = {
             "Flat Preset": "e5fe1600000008fe",
             "ZeroG Preset": "e5fe1600100000f6",
@@ -44,42 +48,32 @@ class sertaBLEController:
             "Lift Foot": "e5fe160400000002",
             "Lower Foot": "e5fe1608000000fe",
         }
+        self.req = Requester(addr)
         if DEBUG:
             print("Initialized control for %s" % addr)
 
     def sendCommand(self, name):
+        if not self.req.is_connected():
+            self.req.connect(True)
         cmd = self.commands.get(name, None)
         if DEBUG:
-            print("Readying command: %s" % cmd)
+            print("Readying command: %s" % str(cmd))
         if cmd is None:
-            raise Exception("Command not found: " + name)
+            raise Exception("Command not found: " + str(name))
+        if DEBUG:
+            print(bytearray.fromhex(cmd))
 
-        for retry in range(3):
-            if DEBUG:
-                print("Sending BLE command: %s" % cmd)
-            cmd_args = [
-                "/usr/bin/gatttool",
-                "-b",
-                self.addr,
-                "--char-write-req",
-                "--handle",
-                self.handle,
-                "--value",
-                cmd,
-            ]
-            if DEBUG:
-                print(cmd_args)
-            res = subprocess.call(cmd_args)
-            if DEBUG:
-                print("BLE command sent")
-            if res == 0:
-                break
-            else:
-                if DEBUG:
-                    print("BLE write error, retrying in 2 seconds")
-                time.sleep(2)
-
-        return res == 0
+        if DEBUG:
+            print("Sending BLE command: %s" % cmd)
+        if self.pretend:
+            (" ".join(cmd_args))
+            res = 0
+        else:
+            res = self.req.write_by_handle(0x0020, bytes.fromhex(cmd))
+        if DEBUG:
+            print("BLE command sent")
+            print(res)
+        return res
 
 
 async def bed_loop(ble):
@@ -134,7 +128,8 @@ async def check_in(client, topic, payload):
 async def bed_command(ble, messages):
     async for message in messages:
         template = f'[topic_filter="{MQTT_TOPIC}"] {{}}'
-        print(template.format(message.payload.decode()))
+        if DEBUG:
+            print(template.format(message.payload.decode()))
         ble.sendCommand(message.payload.decode())
 
 
