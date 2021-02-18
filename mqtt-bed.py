@@ -24,8 +24,7 @@ from config import *
 
 
 class sertaBLEController:
-    def __init__(self, addr, pretend=False):
-        self.pretend = pretend
+    def __init__(self, addr):
         self.addr = addr
         self.handle = "0x0020"
         self.commands = {
@@ -70,11 +69,7 @@ class sertaBLEController:
             ]
             if DEBUG:
                 print(cmd_args)
-            if self.pretend:
-                (" ".join(cmd_args))
-                res = 0
-            else:
-                res = subprocess.call(cmd_args)
+            res = subprocess.call(cmd_args)
             if DEBUG:
                 print("BLE command sent")
             if res == 0:
@@ -157,12 +152,11 @@ async def cancel_tasks(tasks):
 async def main():
 
     ble_address = os.environ.get("BLE_ADDRESS", BED_ADDRESS)
-    pretend = os.environ.get("BLE_PRETEND", "false").lower() == "true"
 
     if ble_address is None:
         raise Exception("BLE_ADDRESS env not set")
 
-    ble = sertaBLEController(ble_address, pretend)
+    ble = sertaBLEController(ble_address)
 
     # Run the bed_loop indefinitely. Reconnect automatically
     # if the connection is lost.
