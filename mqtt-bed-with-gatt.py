@@ -13,6 +13,11 @@ from config import *
 VERSION = 0.8
 
 
+class Requester(GATTRequester):
+    def on_notification(self, handle, data):
+        print("roger roger - notification on handle: {}\n".format(handle))
+
+
 class sertaBLEController:
     def __init__(self, addr, pretend=False):
         self.pretend = pretend
@@ -35,11 +40,15 @@ class sertaBLEController:
             "Lift Foot": "e5fe160400000002",
             "Lower Foot": "e5fe1608000000fe",
         }
-        self.req = GATTRequester(addr)
+        #        self.req = GATTRequester(addr)
+        self.req = Requester(addr)
         if DEBUG:
             print("Initialized control for %s" % addr)
 
     def sendCommand(self, name):
+        print(self.req.is_connected())
+        if not self.req.is_connected():
+            self.req.connect()
         cmd = self.commands.get(name, None)
         if DEBUG:
             print("Readying command: %s" % str(cmd))
@@ -58,6 +67,7 @@ class sertaBLEController:
         if DEBUG:
             print("BLE command sent")
             print(res)
+        #        self.req.disconnect()
         return res
 
 
