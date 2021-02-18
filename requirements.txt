@@ -1,2 +1,3 @@
 paho-mqtt==1.5.1
 gattlib==0.20201113
+asyncio-mqtt==0.8.0
