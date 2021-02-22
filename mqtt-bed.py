@@ -9,7 +9,7 @@ from asyncio_mqtt import Client, MqttError
 from controllers.serta import sertaBLEController
 
 # mqtt-bed default config values. Set these in config.py yourself.
-BED_ADDRESS = "7C:EC:79:FF:6D:02"
+# BED_ADDRESS = "7C:EC:79:FF:6D:02"
 MQTT_USERNAME = "mqttbed"
 MQTT_PASSWORD = "mqtt-bed"
 MQTT_SERVER = "127.0.0.1"
@@ -70,13 +70,13 @@ async def check_in(client, topic, payload):
         if DEBUG:
             print(f'[topic="{topic}"] Publishing message={payload}')
         await client.publish(topic, payload, qos=1)
-        await asyncio.sleep(30)
+        await asyncio.sleep(300)
 
 
 async def bed_command(ble, messages):
     async for message in messages:
-        template = f'[topic_filter="{MQTT_TOPIC}"] {{}}'
         if DEBUG:
+            template = f'[topic_filter="{MQTT_TOPIC}"] {{}}'
             print(template.format(message.payload.decode()))
         ble.sendCommand(message.payload.decode())
 
