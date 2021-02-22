@@ -5,11 +5,9 @@ import asyncio
 from contextlib import AsyncExitStack, asynccontextmanager
 from asyncio_mqtt import Client, MqttError
 
-# from controllers.serta import Requester, sertaBLEController
 from controllers.serta import sertaBLEController
 
 # mqtt-bed default config values. Set these in config.py yourself.
-# BED_ADDRESS = "7C:EC:79:FF:6D:02"
 MQTT_USERNAME = "mqttbed"
 MQTT_PASSWORD = "mqtt-bed"
 MQTT_SERVER = "127.0.0.1"
