@@ -2,8 +2,7 @@ import pygatt
 
 
 class sertaBLEController:
-    def __init__(self, addr, pretend=False):
-        self.pretend = pretend
+    def __init__(self, addr):
         self.addr = addr
         self.commands = {
             "Flat Preset": "e5fe1600000008fe",
