@@ -5,7 +5,11 @@ MQTT control for Serta adjustable beds with Bluetooth, like the [Serta Motion Pe
 Based upon code from https://github.com/danisla/iot-bed
 
 ## Requirements
-It requires [paho-mqtt](https://pypi.org/project/paho-mqtt/), which can be installed with Pip, and also [gatttool](http://manpages.ubuntu.com/manpages/cosmic/man1/gatttool.1.html), part of the [bluez](http://www.bluez.org/) package (sudo apt install bluez.)
+See requirements.txt file.  It now uses asyncio-mqtt and pygatt instead of a subprocess using gatttool.
+```
+pip install -r requirements.txt
+```
+
 [hcitool](http://manpages.ubuntu.com/manpages/focal/en/man1/hcitool.1.html) will probably be needed, to find the address of your bed, which is part of bluez also.
 
 ## Finding the address of your bed
