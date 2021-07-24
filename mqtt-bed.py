@@ -5,6 +5,7 @@ import asyncio
 from contextlib import AsyncExitStack, asynccontextmanager
 from asyncio_mqtt import Client, MqttError
 
+from controllers.jiecang import jiecangBLEController
 from controllers.serta import sertaBLEController
 
 # mqtt-bed default config values. Set these in config.py yourself.
@@ -18,6 +19,7 @@ MQTT_CHECKIN_PAYLOAD = "OK"
 MQTT_ONLINE_PAYLOAD = "online"
 MQTT_QOS = 0
 DEBUG = 0
+BED_TYPE = "serta"
 
 from config import *
 
@@ -96,8 +98,13 @@ async def main():
 
     if ble_address is None:
         raise Exception("BLE_ADDRESS env not set")
-
-    ble = sertaBLEController(ble_address)
+    
+    if BED_TYPE == "serta":
+        ble = sertaBLEController(ble_address)
+    elif BED_TYPE == "jiecang":
+        ble = jiecangBLEController(ble_address)
+    else:
+        raise Exception("Unrecognised bed type: " + str(BED_TYPE))
 
     # Run the bed_loop indefinitely. Reconnect automatically
     # if the connection is lost.

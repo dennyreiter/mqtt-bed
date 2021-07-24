@@ -8,6 +8,9 @@ MQTT_SERVER = "127.0.0.1"
 MQTT_SERVER_PORT = 1883
 MQTT_TOPIC = "bed"
 
+# Bed controller type, supported values are "serta" and "jiecang"
+BED_TYPE = "serta"
+
 # Don't worry about these unless you want to
 MQTT_CHECKIN_TOPIC = "checkIn/bed"
 MQTT_CHECKIN_PAYLOAD = "OK"
