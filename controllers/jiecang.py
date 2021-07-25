@@ -5,8 +5,8 @@ class jiecangBLEController:
     def __init__(self, addr):
         self.addr = addr
         self.commands = {
-            "Memory 1": "f1f10d01010f7e",
-            "Memory 2": "f1f10b01010d7e",
+            "Memory 1": "f1f10b01010d7e",
+            "Memory 2": "f1f10d01010f7e",
             "Flat": "f1f10801010a7e",
             "Zero G": "f1f1070101097e",
         }
