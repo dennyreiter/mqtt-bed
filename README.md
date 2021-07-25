@@ -1,6 +1,6 @@
 # mqtt-bed
 
-MQTT control for Serta adjustable beds with Bluetooth, like the [Serta Motion Perfect III](https://www.serta.com/sites/ssb/serta.com/uploads/2016/adjustable-foundations/MotionPerfectIII_Manual_V004_04142016.pdf)
+MQTT control for Serta adjustable beds with Bluetooth, like the [Serta Motion Perfect III](https://www.serta.com/sites/ssb/serta.com/uploads/2016/adjustable-foundations/MotionPerfectIII_Manual_V004_04142016.pdf) And 'Glide' with the jiecang ble controller (Dream Motion app)
 
 Based upon code from https://github.com/danisla/iot-bed
 
