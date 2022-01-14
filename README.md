@@ -1,11 +1,12 @@
 # mqtt-bed
 
-MQTT control for Serta adjustable beds with Bluetooth, like the [Serta Motion Perfect III](https://www.serta.com/sites/ssb/serta.com/uploads/2016/adjustable-foundations/MotionPerfectIII_Manual_V004_04142016.pdf) And 'Glide' with the jiecang ble controller (Dream Motion app)
+MQTT control for Serta adjustable beds with Bluetooth, like the [Serta Motion Perfect III](https://www.serta.com/sites/ssb/serta.com/uploads/2016/adjustable-foundations/MotionPerfectIII_Manual_V004_04142016.pdf), 'Glide' with the jiecang ble controller (Dream Motion app) and 'A H Beard' with the DerwentOkin ble controller ("Comfort Enhancement 2" aka "Comfort Plus" app).
 
 Based upon code from https://github.com/danisla/iot-bed
 
 ## Requirements
 See requirements.txt file.  It now uses asyncio-mqtt and pygatt instead of a subprocess using gatttool.
+The DerwentOkin modules uses bluepy instead of the deprecated pygatt/gatttool.
 ```
 pip install -r requirements.txt
 ```

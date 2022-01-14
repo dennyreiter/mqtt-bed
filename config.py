@@ -8,7 +8,7 @@ MQTT_SERVER = "127.0.0.1"
 MQTT_SERVER_PORT = 1883
 MQTT_TOPIC = "bed"
 
-# Bed controller type, supported values are "serta" and "jiecang"
+# Bed controller type, supported values are "serta", "jiecang" and "dewertokin"
 BED_TYPE = "serta"
 
 # Don't worry about these unless you want to
