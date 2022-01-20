@@ -5,6 +5,7 @@ import asyncio
 from contextlib import AsyncExitStack, asynccontextmanager
 from asyncio_mqtt import Client, MqttError
 
+from controllers.dewertokin import dewertokinBLEController
 from controllers.jiecang import jiecangBLEController
 from controllers.serta import sertaBLEController
 
@@ -103,6 +104,8 @@ async def main():
         ble = sertaBLEController(ble_address)
     elif BED_TYPE == "jiecang":
         ble = jiecangBLEController(ble_address)
+    elif BED_TYPE == "dewertokin":
+        ble = dewertokinBLEController(ble_address)
     else:
         raise Exception("Unrecognised bed type: " + str(BED_TYPE))
 
