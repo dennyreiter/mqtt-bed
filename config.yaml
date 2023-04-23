@@ -1,0 +1,21 @@
+bed:
+# Bed controller type, supported values are "serta", "jiecang" and "dewertokin"
+  type: serta
+  address: "7C:EC:79:FF:6D:02"
+
+mqtt:
+  username: mqttbed
+  password: mqtt-bed
+  server: 127.0.0.1
+  server_port: 1883
+  topic: testbed
+# Don't worry about these unless you want to
+  checkin:
+    topic: "checkIn/testbed"
+    payload: "OK"
+  online:
+    payload: "testing"
+  qos: 0
+
+# Extra debug messages
+debug: 1
