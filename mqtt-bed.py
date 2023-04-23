@@ -1,28 +1,44 @@
-#!/home/pi/.pyenv/shims/python
+#!/usr/bin/python3
 
-import os
 import asyncio
-from contextlib import AsyncExitStack, asynccontextmanager
+import yaml
+from contextlib import AsyncExitStack
 from asyncio_mqtt import Client, MqttError
 
 from controllers.dewertokin import dewertokinBLEController
 from controllers.jiecang import jiecangBLEController
 from controllers.serta import sertaBLEController
 
-# mqtt-bed default config values. Set these in config.py yourself.
-MQTT_USERNAME = "mqttbed"
-MQTT_PASSWORD = "mqtt-bed"
-MQTT_SERVER = "127.0.0.1"
-MQTT_SERVER_PORT = 1883
-MQTT_TOPIC = "bed"
-MQTT_CHECKIN_TOPIC = "checkIn/bed"
-MQTT_CHECKIN_PAYLOAD = "OK"
-MQTT_ONLINE_PAYLOAD = "online"
 MQTT_QOS = 0
 DEBUG = 0
-BED_TYPE = "serta"
 
-from config import *
+
+class Bed:
+    def __init__(self, raw):
+        self.type = raw["type"]
+        self.address = raw["address"]
+
+
+class Mqtt:
+    def __init__(self, raw):
+        self.username = raw["username"]
+        self.password = raw["password"]
+        self.server = raw["server"]
+        self.serverPort = raw["server_port"]
+        self.topic = raw["topic"]
+        self.checkin = raw["checkin"]
+        self.online = raw["online"]
+        self.qos = raw["qos"]
+
+
+class Config:
+    def __init__(self, raw):
+        self.bed = Bed(raw["bed"])
+        self.mqtt = Mqtt(raw["mqtt"])
+
+
+with open("config.yaml", "r") as file:
+    config = Config(yaml.safe_load(file))
 
 
 async def bed_loop(ble):
@@ -34,35 +50,38 @@ async def bed_loop(ble):
 
         # Connect to the MQTT broker
         client = Client(
-            MQTT_SERVER,
-            port=MQTT_SERVER_PORT,
-            username=MQTT_USERNAME,
-            password=MQTT_PASSWORD,
+            config.mqtt.server,
+            port=config.mqtt.serverPort,
+            username=config.mqtt.username,
+            password=config.mqtt.password,
         )
         await stack.enter_async_context(client)
 
         # Set up the topic filter
-        manager = client.filtered_messages(MQTT_TOPIC)
+        manager = client.filtered_messages(config.mqtt.topic)
         messages = await stack.enter_async_context(manager)
         task = asyncio.create_task(bed_command(ble, messages))
         tasks.add(task)
 
         # Subscribe to topic(s)
-        await client.subscribe(MQTT_TOPIC)
+        await client.subscribe(config.mqtt.topic)
 
         # let everyone know we are online
         if DEBUG:
             print("Going online")
-        await client.publish(MQTT_CHECKIN_TOPIC, MQTT_ONLINE_PAYLOAD, qos=1)
+        await client.publish(
+            config.mqtt.checkin["topic"], config.mqtt.online["payload"], qos=1
+        )
 
         # let everyone know we are still alive
         task = asyncio.create_task(
-            check_in(client, MQTT_CHECKIN_TOPIC, MQTT_CHECKIN_PAYLOAD)
+            check_in(
+                client, config.mqtt.checkin["topic"], config.mqtt.checkin["payload"]
+            )
         )
         tasks.add(task)
 
-        # Wait for everything to complete (or fail due to, e.g., network
-        # errors)
+        # Wait for everything to complete (or fail due to, e.g., network errors)
         await asyncio.gather(*tasks)
 
 
@@ -77,7 +96,7 @@ async def check_in(client, topic, payload):
 async def bed_command(ble, messages):
     async for message in messages:
         if DEBUG:
-            template = f'[topic_filter="{MQTT_TOPIC}"] {{}}'
+            template = f'[topic_filter="{config.mqtt.topic}"] {{}}'
             print(template.format(message.payload.decode()))
         ble.sendCommand(message.payload.decode())
 
@@ -94,20 +113,19 @@ async def cancel_tasks(tasks):
 
 
 async def main():
-
-    ble_address = os.environ.get("BLE_ADDRESS", BED_ADDRESS)
+    ble_address = config.bed.address
 
     if ble_address is None:
-        raise Exception("BLE_ADDRESS env not set")
-    
-    if BED_TYPE == "serta":
+        raise Exception("Bed Address not set")
+
+    if config.bed.type == "serta":
         ble = sertaBLEController(ble_address)
-    elif BED_TYPE == "jiecang":
+    elif config.bed.type == "jiecang":
         ble = jiecangBLEController(ble_address)
-    elif BED_TYPE == "dewertokin":
+    elif config.bed.type == "dewertokin":
         ble = dewertokinBLEController(ble_address)
     else:
-        raise Exception("Unrecognised bed type: " + str(BED_TYPE))
+        raise Exception("Unrecognised bed type: " + str(config.bed.type))
 
     # Run the bed_loop indefinitely. Reconnect automatically
     # if the connection is lost.
