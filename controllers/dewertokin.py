@@ -103,6 +103,10 @@ class dewertokinBLEController:
                 print("Attempting to connect to bed.")
                 self.device = ble.Peripheral(deviceAddr=self.addr, addrType='random')
                 print("Connected to bed.")
+                print("Enabling bed control.")
+                self.device.readCharacteristic(0x001e)
+                self.device.readCharacteristic(0x0020)
+                print("Bed control enabled.")
                 return
             except:
                 pass
