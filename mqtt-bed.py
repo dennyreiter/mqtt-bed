@@ -19,17 +19,18 @@ with open('config.yaml', 'r') as file:
 
 # Access the configuration variables set in config.yaml
 BED_ADDRESS = config.get('BED_ADDRESS', '00:00:00:00:00:00')
+BED_TYPE = config.get('BED_TYPE', 'serta')
 MQTT_USERNAME = config.get('MQTT_USERNAME', 'mqttbed')
 MQTT_PASSWORD = config.get('MQTT_PASSWORD', 'mqtt-bed')
 MQTT_SERVER = config.get('MQTT_SERVER', '127.0.0.1')
 MQTT_SERVER_PORT = config.get('MQTT_SERVER_PORT', 1883)
 MQTT_TOPIC = config.get('MQTT_TOPIC', 'bed')
-BED_TYPE = config.get('BED_TYPE', 'serta')
 MQTT_CHECKIN_TOPIC = config.get('MQTT_CHECKIN_TOPIC', 'checkIn/bed')
 MQTT_CHECKIN_PAYLOAD = config.get('MQTT_CHECKIN_PAYLOAD', 'OK')
 MQTT_ONLINE_PAYLOAD = config.get('MQTT_ONLINE_PAYLOAD', 'online')
 MQTT_SHUTDOWN_PAYLOAD = config.get('MQTT_SHUTDOWN_PAYLOAD', 'shutdown')
 MQTT_QOS = config.get('MQTT_QOS', 0)
+RECONNECT_INTERVAL = config.get('RECONNECT_INTERVAL', 3)
 
 
 async def bed_loop(ble):
@@ -118,16 +119,14 @@ async def main():
     else:
         raise Exception("Unrecognised bed type: " + str(BED_TYPE))
 
-    # Run the bed_loop indefinitely. Reconnect automatically
-    # if the connection is lost.
-    reconnect_interval = 3  # [seconds]
+    # Run the bed_loop indefinitely. Reconnect automatically if the connection is lost.
     while True:
         try:
             await bed_loop(ble)
         except MqttError as error:
-            logger.error(f'Error "{error}". Reconnecting in {reconnect_interval} seconds.')
+            logger.error(f'Error "{error}". Reconnecting in {RECONNECT_INTERVAL} seconds.')
         finally:
-            await asyncio.sleep(reconnect_interval)
+            await asyncio.sleep(RECONNECT_INTERVAL)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='BLE adjustable bed control over MQTT')

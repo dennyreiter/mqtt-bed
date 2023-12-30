@@ -12,8 +12,10 @@ MQTT_TOPIC: bed
 # "serta", "jiecang", "dewertokin", and "linak"
 BED_TYPE: serta
 
-# Optional checkin parameters
+# MQTT hearbeat parameters
 MQTT_CHECKIN_TOPIC: checkIn/bed
 MQTT_CHECKIN_PAYLOAD: OK
 MQTT_ONLINE_PAYLOAD: online
+MQTT_SHUTDOWN_PAYLOAD: shutdown
 MQTT_QOS: 0
+RECONNECT_INTERVAL: 3  # Seconds
