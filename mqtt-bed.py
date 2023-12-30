@@ -1,28 +1,34 @@
 #!/home/pi/.pyenv/shims/python
 
 import os
+import logging
 import asyncio
-from contextlib import AsyncExitStack, asynccontextmanager
+import argparse
+import yaml
+from contextlib import AsyncExitStack
 from asyncio_mqtt import Client, MqttError
 
 from controllers.dewertokin import dewertokinBLEController
 from controllers.jiecang import jiecangBLEController
 from controllers.serta import sertaBLEController
+from controllers.linak import linakBLEController
 
-# mqtt-bed default config values. Set these in config.py yourself.
-MQTT_USERNAME = "mqttbed"
-MQTT_PASSWORD = "mqtt-bed"
-MQTT_SERVER = "127.0.0.1"
-MQTT_SERVER_PORT = 1883
-MQTT_TOPIC = "bed"
-MQTT_CHECKIN_TOPIC = "checkIn/bed"
-MQTT_CHECKIN_PAYLOAD = "OK"
-MQTT_ONLINE_PAYLOAD = "online"
-MQTT_QOS = 0
-DEBUG = 0
-BED_TYPE = "serta"
+# Load the YAML config
+with open('config.yaml', 'r') as file:
+    config = yaml.safe_load(file) or {}
 
-from config import *
+# Access the configuration variables set in config.yaml
+BED_ADDRESS = config.get('BED_ADDRESS', '00:00:00:00:00:00')
+MQTT_USERNAME = config.get('MQTT_USERNAME', 'mqttbed')
+MQTT_PASSWORD = config.get('MQTT_PASSWORD', 'mqtt-bed')
+MQTT_SERVER = config.get('MQTT_SERVER', '127.0.0.1')
+MQTT_SERVER_PORT = config.get('MQTT_SERVER_PORT', 1883)
+MQTT_TOPIC = config.get('MQTT_TOPIC', 'bed')
+BED_TYPE = config.get('BED_TYPE', 'serta')
+MQTT_CHECKIN_TOPIC = config.get('MQTT_CHECKIN_TOPIC', 'checkIn/bed')
+MQTT_CHECKIN_PAYLOAD = config.get('MQTT_CHECKIN_PAYLOAD', 'OK')
+MQTT_ONLINE_PAYLOAD = config.get('MQTT_ONLINE_PAYLOAD', 'online')
+MQTT_QOS = config.get('MQTT_QOS', 0)
 
 
 async def bed_loop(ble):
@@ -51,8 +57,7 @@ async def bed_loop(ble):
         await client.subscribe(MQTT_TOPIC)
 
         # let everyone know we are online
-        if DEBUG:
-            print("Going online")
+        logger.info("Connected to MQTT")
         await client.publish(MQTT_CHECKIN_TOPIC, MQTT_ONLINE_PAYLOAD, qos=1)
 
         # let everyone know we are still alive
@@ -68,17 +73,14 @@ async def bed_loop(ble):
 
 async def check_in(client, topic, payload):
     while True:
-        if DEBUG:
-            print(f'[topic="{topic}"] Publishing message={payload}')
+        logger.debug(f'[topic="{topic}"] Publishing message={payload}')
         await client.publish(topic, payload, qos=1)
         await asyncio.sleep(300)
 
 
 async def bed_command(ble, messages):
     async for message in messages:
-        if DEBUG:
-            template = f'[topic_filter="{MQTT_TOPIC}"] {{}}'
-            print(template.format(message.payload.decode()))
+        logger.debug(f'[topic_filter="{MQTT_TOPIC}"] {message.payload.decode()}')
         ble.sendCommand(message.payload.decode())
 
 
@@ -94,18 +96,19 @@ async def cancel_tasks(tasks):
 
 
 async def main():
-
     ble_address = os.environ.get("BLE_ADDRESS", BED_ADDRESS)
 
     if ble_address is None:
         raise Exception("BLE_ADDRESS env not set")
-    
+
     if BED_TYPE == "serta":
         ble = sertaBLEController(ble_address)
     elif BED_TYPE == "jiecang":
         ble = jiecangBLEController(ble_address)
     elif BED_TYPE == "dewertokin":
         ble = dewertokinBLEController(ble_address)
+    elif BED_TYPE == "linak":
+        ble = linakBLEController(ble_address)
     else:
         raise Exception("Unrecognised bed type: " + str(BED_TYPE))
 
@@ -116,9 +119,22 @@ async def main():
         try:
             await bed_loop(ble)
         except MqttError as error:
-            print(f'Error "{error}". Reconnecting in {reconnect_interval} seconds.')
+            logger.error(f'Error "{error}". Reconnecting in {reconnect_interval} seconds.')
         finally:
             await asyncio.sleep(reconnect_interval)
 
+parser = argparse.ArgumentParser(description='BLE adjustable bed control over MQTT')
+parser.add_argument('--log', dest='log_level', default='INFO',
+                    help='Set the log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
+
+args = parser.parse_args()
+
+numeric_level = getattr(logging, args.log_level.upper(), None)
+if not isinstance(numeric_level, int):
+    raise ValueError(f'Invalid log level: {args.log_level}')
+
+logging.basicConfig(level=numeric_level, format='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
+                    datefmt='%H:%M:%S')
+logger = logging.getLogger(__name__)
 
 asyncio.run(main())
