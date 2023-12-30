@@ -28,6 +28,7 @@ BED_TYPE = config.get('BED_TYPE', 'serta')
 MQTT_CHECKIN_TOPIC = config.get('MQTT_CHECKIN_TOPIC', 'checkIn/bed')
 MQTT_CHECKIN_PAYLOAD = config.get('MQTT_CHECKIN_PAYLOAD', 'OK')
 MQTT_ONLINE_PAYLOAD = config.get('MQTT_ONLINE_PAYLOAD', 'online')
+MQTT_SHUTDOWN_PAYLOAD = config.get('MQTT_SHUTDOWN_PAYLOAD', 'shutdown')
 MQTT_QOS = config.get('MQTT_QOS', 0)
 
 
@@ -53,22 +54,27 @@ async def bed_loop(ble):
         task = asyncio.create_task(bed_command(ble, messages))
         tasks.add(task)
 
-        # Subscribe to topic(s)
-        await client.subscribe(MQTT_TOPIC)
+        try:
+            # Subscribe to topic(s)
+            await client.subscribe(MQTT_TOPIC)
 
-        # let everyone know we are online
-        logger.info("Connected to MQTT")
-        await client.publish(MQTT_CHECKIN_TOPIC, MQTT_ONLINE_PAYLOAD, qos=1)
+            # let everyone know we are online
+            logger.info("Connected to MQTT")
+            await client.publish(MQTT_CHECKIN_TOPIC, MQTT_ONLINE_PAYLOAD, qos=1)
 
-        # let everyone know we are still alive
-        task = asyncio.create_task(
-            check_in(client, MQTT_CHECKIN_TOPIC, MQTT_CHECKIN_PAYLOAD)
-        )
-        tasks.add(task)
+            # let everyone know we are still alive
+            task = asyncio.create_task(
+                check_in(client, MQTT_CHECKIN_TOPIC, MQTT_CHECKIN_PAYLOAD)
+            )
+            tasks.add(task)
 
-        # Wait for everything to complete (or fail due to, e.g., network
-        # errors)
-        await asyncio.gather(*tasks)
+            # Wait for everything to complete (or fail due to, e.g., network
+            # errors)
+            await asyncio.gather(*tasks)
+        except KeyboardInterrupt:
+            logger.info("Disconnecting from MQTT")
+            await client.publish(MQTT_CHECKIN_TOPIC, MQTT_SHUTDOWN_PAYLOAD, qos=1)
+            await client.close()
 
 
 async def check_in(client, topic, payload):
@@ -123,18 +129,20 @@ async def main():
         finally:
             await asyncio.sleep(reconnect_interval)
 
-parser = argparse.ArgumentParser(description='BLE adjustable bed control over MQTT')
-parser.add_argument('--log', dest='log_level', default='INFO',
-                    help='Set the log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='BLE adjustable bed control over MQTT')
+    parser.add_argument('--log', dest='log_level', default='INFO',
+                        help='Set the log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)')
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-numeric_level = getattr(logging, args.log_level.upper(), None)
-if not isinstance(numeric_level, int):
-    raise ValueError(f'Invalid log level: {args.log_level}')
+    numeric_level = getattr(logging, args.log_level.upper(), None)
+    if not isinstance(numeric_level, int):
+        raise ValueError(f'Invalid log level: {args.log_level}')
 
-logging.basicConfig(level=numeric_level, format='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
-                    datefmt='%H:%M:%S')
-logger = logging.getLogger(__name__)
+    logging.basicConfig(level=numeric_level, format='%(asctime)s - %(filename)s:%(lineno)d - %(levelname)s - %(message)s',
+                        datefmt='%H:%M:%S')
+    logger = logging.getLogger(__name__)
 
-asyncio.run(main())
+    # Run the main program
+    asyncio.run(main())
