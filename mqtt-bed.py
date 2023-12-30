@@ -32,6 +32,9 @@ MQTT_SHUTDOWN_PAYLOAD = config.get('MQTT_SHUTDOWN_PAYLOAD', 'shutdown')
 MQTT_QOS = config.get('MQTT_QOS', 0)
 RECONNECT_INTERVAL = config.get('RECONNECT_INTERVAL', 3)
 
+# Global variable to signal shutdown
+shutdown_signal = asyncio.Event()
+
 
 async def bed_loop(ble):
     async with AsyncExitStack() as stack:
@@ -72,10 +75,12 @@ async def bed_loop(ble):
             # Wait for everything to complete (or fail due to, e.g., network
             # errors)
             await asyncio.gather(*tasks)
-        except KeyboardInterrupt:
+        except asyncio.CancelledError:
+            logger.debug("Shutdown signal received, closing MQTT connection")
             logger.info("Disconnecting from MQTT")
             await client.publish(MQTT_CHECKIN_TOPIC, MQTT_SHUTDOWN_PAYLOAD, qos=1)
             await client.close()
+            raise
 
 
 async def check_in(client, topic, payload):
@@ -103,30 +108,35 @@ async def cancel_tasks(tasks):
 
 
 async def main():
-    ble_address = os.environ.get("BLE_ADDRESS", BED_ADDRESS)
-
-    if ble_address is None:
-        raise Exception("BLE_ADDRESS env not set")
-
     if BED_TYPE == "serta":
-        ble = sertaBLEController(ble_address)
+        ble = sertaBLEController(BED_ADDRESS)
     elif BED_TYPE == "jiecang":
-        ble = jiecangBLEController(ble_address)
+        ble = jiecangBLEController(BED_ADDRESS)
     elif BED_TYPE == "dewertokin":
-        ble = dewertokinBLEController(ble_address)
+        ble = dewertokinBLEController(BED_ADDRESS)
     elif BED_TYPE == "linak":
-        ble = linakBLEController(ble_address)
+        ble = linakBLEController(BED_ADDRESS)
     else:
         raise Exception("Unrecognised bed type: " + str(BED_TYPE))
 
     # Run the bed_loop indefinitely. Reconnect automatically if the connection is lost.
-    while True:
-        try:
-            await bed_loop(ble)
-        except MqttError as error:
-            logger.error(f'Error "{error}". Reconnecting in {RECONNECT_INTERVAL} seconds.')
-        finally:
-            await asyncio.sleep(RECONNECT_INTERVAL)
+    try:
+        while not shutdown_signal.is_set():
+            try:
+                await bed_loop(ble)
+            except MqttError as error:
+                logger.error(f'Error "{error}". Reconnecting in {RECONNECT_INTERVAL} seconds.')
+            finally:
+                await asyncio.sleep(RECONNECT_INTERVAL)
+    except KeyboardInterrupt:
+        logger.debug("Ctrl-C caught, setting shutdown signal")
+        shutdown_signal.set()
+
+        # Cancel all running tasks gracefully
+        tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+        [task.cancel() for task in tasks]
+
+        await asyncio.gather(*tasks, return_exceptions=True)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='BLE adjustable bed control over MQTT')
