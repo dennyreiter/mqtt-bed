@@ -79,7 +79,6 @@ async def bed_loop(ble):
             logger.debug("Shutdown signal received, closing MQTT connection")
             logger.info("Disconnecting from MQTT")
             await client.publish(MQTT_CHECKIN_TOPIC, MQTT_SHUTDOWN_PAYLOAD, qos=1)
-            await client.close()
             raise
 
 
@@ -154,4 +153,7 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
 
     # Run the main program
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        pass
