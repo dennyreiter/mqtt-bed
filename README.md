@@ -9,16 +9,17 @@ A project to enable MQTT control for BLE adjustable beds. Currently supported ad
 
 
 ## Requirements
-First, you need to install bluepy from your package manager of choice. On a pi running Debian, you can use the following apt command to install Poetry, bluepy and its dependencies:
+First, you need to install bluepy from your package manager of choice. On a pi running Debian, you can use the following apt command to install Poetry, bluez and its dependencies:
 
 ```sh
 sudo apt update
-sudo apt install python3-pip pipx bluez libglib2.0-dev bluepy
+sudo apt install python3-pip pipx bluez libglib2.0-dev
 pipx install poetry
 pipx ensurepath
 ```
 
-Additionally, you will need to install the necessary Python dependencies:
+You will need to log out and log back in for the PATh chnages to take effect.
+You can then install the necessary Python dependencies:
 
 ```sh
 cd mqtt-bed
@@ -38,7 +39,7 @@ If you have a Serta bed, and are using the [Serta MP Remote app](https://apk-dl.
 
 Otherwise, you can use `hcitool` from the `bluez` package to find the address of your bed:
 
-```
+```console
 $ hcitool lescan
 LE Scan ...
 61:61:61:4E:A0:B0 (unknown)
@@ -62,7 +63,7 @@ You will need to substitute the correct path to the program source depending on 
 
 The program has one optional argument, which will control the verbosity of the program. By default, the log level is set to `INFO` but can be easilt changed with the `--log` option. When doing development or troubleshooting, it is recommended to runm with `--log DEBUG`
 
-```
+```console
 usage: mqtt-bed.py [-h] [--log LOG_LEVEL]
 
 BLE adjustable bed control over MQTT
