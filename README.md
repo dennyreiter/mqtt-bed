@@ -9,16 +9,17 @@ A project to enable MQTT control for BLE adjustable beds. Currently supported ad
 
 
 ## Requirements
-First, you need to install bluepy from your package manager of choice. On a pi running Debian, you can use the following apt command to install Poetry, bluepy and its dependencies:
+First, you need to install bluepy from your package manager of choice. On a pi running Debian, you can use the following apt command to install Poetry, bluez and its dependencies:
 
 ```sh
 sudo apt update
-sudo apt install python3-pip pipx bluez libglib2.0-dev bluepy
+sudo apt install python3-pip pipx bluez libglib2.0-dev
 pipx install poetry
 pipx ensurepath
 ```
 
-Additionally, you will need to install the necessary Python dependencies:
+You will need to log out and log back in for the PATh chnages to take effect.
+You can then install the necessary Python dependencies:
 
 ```sh
 cd mqtt-bed
