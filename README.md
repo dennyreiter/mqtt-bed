@@ -104,6 +104,37 @@ The YAML used in Home Assistant to integrate your bed will vary by your installa
 
 In addition, it is common to run the MQTT Broker service in your Home Assitant installation if you do not have a broker running already, in which case you can use the [official Mosquito broker addon](https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md). Once you have your broker setup, you will want to fill in your Home Assistant information in the MQTT config section of the `config.yaml` file.
 
+## Trusting Bluetooth device on Linux
+
+If you are running this application on a dedicated device, you likely need to pair and trust the bed on your device. 
+
+First, you need to put your bed into pairing mode. The method to do this will be highly dependent on your bed type.
+
+Once it is in pairing mode, you can run the following `bluetoothctl` commands to enable BLE, scan for the device, pair, and trust the bed:
+
+```sh
+bluetoothctl
+[bluetooth]# power on
+[bluetooth]# agent on
+[bluetooth]# default-agent
+[bluetooth]# scan on
+```
+
+Now, you should be able to find your bed in the list of discovered devices. For example: 
+
+```command
+[NEW] Device 00:00:00:00:00:00 Bed
+```
+
+Now you'll want to initiate pairing with the device, connect once, trust the device, and disconnect. You will need to substitute in the correct address for your device: 
+
+```sh
+[bluetooth]# pair 00:00:00:00:00:00
+[bluetooth]# connect 00:00:00:00:00:00
+[bluetooth]# trust 00:00:00:00:00:00
+[bluetooth]# disconnect 00:00:00:00:00:00
+[bluetooth]# exit
+```
 
 ## Contributing
 If your adjustable bed is not integrated into this repository yet, and you create your integration, it would be great to add your controller to this project for other to use!
