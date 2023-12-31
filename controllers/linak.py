@@ -12,8 +12,8 @@ class linakBLEController:
         self.addr = addr
         self.uuid = '99FA0002-338A-1024-8A49-009C0215F78A'
         self.commands = {
-            "Head Up": "0b00",
-            "Head Down": "0a00",
+            "Head Up": "0B00",
+            "Head Down": "0A00",
             "Feet Up": "0900",
             "Feet Down": "0800",
             "Both Up": "0100",
