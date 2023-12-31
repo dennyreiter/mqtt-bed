@@ -80,23 +80,22 @@ If you are using a dedicated device (like a Raspberry/Orange Pi Zero W) to run t
 [Unit]
 Description=mqtt-bed service
 After=network.target
-StartLimitIntervalSec=0
 
 [Service]
-Type=simple
+ExecStart=poetry run python /home/pi/mqtt-bed/mqtt-bed.py
+WorkingDirectory=/home/pi/mqtt-bed
+User=pi
 Restart=always
 RestartSec=1
-User=pi
-ExecStart=poetry run python /home/pi/mqtt-bed/mqtt-bed.py
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-In this file, you may need to swap out the username in the `User` variable, as well as the paths used in `ExecStart`. The `ExecStart` command should contain:
+In this file, you may need to swap out the username in the `User` variable, as well as the paths used in `ExecStart` and `WorkingDirectory`. The `ExecStart` command should contain:
 
 1. `poetry run python` or the path to python in the virtual environment
-2. The path to the `mqtt-bed.py` file.
+2. The absolute path to the `mqtt-bed.py` file.
 
 
 ## Home Assistant Integration
