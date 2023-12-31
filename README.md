@@ -97,6 +97,10 @@ In this file, you may need to swap out the username in the `User` variable, as w
 1. `poetry run python` or the path to python in the virtual environment
 2. The absolute path to the `mqtt-bed.py` file.
 
+After creating this file, you will need to run `sudo systemctl daemon-reload` to grab the new service file, `sudo systemctl enable mqtt-bed` to run the service on boot, and `sudo systemctl start mqtt-bed` to start the service for the first time.
+
+You can check the status of the service at any time by running `sudo systemctl status mqtt-bed`.
+
 
 ## Home Assistant Integration
 The YAML used in Home Assistant to integrate your bed will vary by your installation and bed type, but you can find example YAML for in the `homeassistant-script.yaml` file in this repository.
