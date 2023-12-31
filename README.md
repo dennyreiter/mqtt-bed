@@ -101,7 +101,7 @@ After creating this file, you will need to run `sudo systemctl daemon-reload` to
 
 You can check the status of the service at any time by running `sudo systemctl status mqtt-bed`.
 
-You can also view the logs from this service at any time by running `sudo journalctl -u mqtt-bed.service`
+You can also view the live logs from this service at any time by running `sudo journalctl -u mqtt-bed.service -f`
 
 ## Home Assistant Integration
 The YAML used in Home Assistant to integrate your bed will vary by your installation and bed type, but you can find example YAML for in the `homeassistant-script.yaml` file in this repository.
