@@ -82,7 +82,7 @@ Description=mqtt-bed service
 After=network.target
 
 [Service]
-ExecStart=poetry run python /home/pi/mqtt-bed/mqtt-bed.py
+ExecStart=/home/pi/.local/bin/poetry run python /home/pi/mqtt-bed/mqtt-bed.py
 WorkingDirectory=/home/pi/mqtt-bed
 User=pi
 Restart=always
@@ -94,13 +94,14 @@ WantedBy=multi-user.target
 
 In this file, you may need to swap out the username in the `User` variable, as well as the paths used in `ExecStart` and `WorkingDirectory`. The `ExecStart` command should contain:
 
-1. `poetry run python` or the path to python in the virtual environment
+1. `/path/to/poetry run python` which can be found by running `which poetry`
 2. The absolute path to the `mqtt-bed.py` file.
 
 After creating this file, you will need to run `sudo systemctl daemon-reload` to grab the new service file, `sudo systemctl enable mqtt-bed` to run the service on boot, and `sudo systemctl start mqtt-bed` to start the service for the first time.
 
 You can check the status of the service at any time by running `sudo systemctl status mqtt-bed`.
 
+You can also view the logs from this service at any time by running `sudo journalctl -u mqtt-bed.service`
 
 ## Home Assistant Integration
 The YAML used in Home Assistant to integrate your bed will vary by your installation and bed type, but you can find example YAML for in the `homeassistant-script.yaml` file in this repository.
