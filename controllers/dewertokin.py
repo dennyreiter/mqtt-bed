@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#----------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
 # Created By  : https://github.com/mishnz
 # Created Date: 14/01/2022
 # version ='1.0'
@@ -35,11 +35,14 @@ Note: This module will work with some other "Okin"/"DewertOkin" models.
 # Imports
 # ---------------------------------------------------------------------------
 import bluepy.btle as ble
+import logging
 import time
 import threading
 
+
 class dewertokinBLEController:
     def __init__(self, addr):
+        self.logger = logging.getLogger(__name__)
         self.charWriteInProgress = False
         self.addr = addr
         self.commands = {
@@ -78,68 +81,68 @@ class dewertokinBLEController:
                 try:
                     cmd = self.commands.get("Keepalive NOOP", None)
                     self.device.writeCharacteristic(0x0013, bytes.fromhex(cmd), withResponse=True)
-                    print("Keepalive success!")
-                except:
-                    print("Keepalive failed! (1/2)")
+                    self.logger.debug("Keepalive success!")
+                except Exception:
+                    self.logger.error("Keepalive failed! (1/2)")
                     try:
                         # We perform a second keepalive check 0.5 seconds later before reconnecting.
                         time.sleep(0.5)
                         cmd = self.commands.get("Keepalive NOOP", None)
                         self.device.writeCharacteristic(0x0013, bytes.fromhex(cmd), withResponse=True)
-                        print("Keepalive success!")
-                    except:
+                        self.logger.info("Keepalive success!")
+                    except Exception:
                         # If both keepalives failed, we reconnect.
-                        print("Keepalive failed! (2/2)")
+                        self.logger.error("Keepalive failed! (2/2)")
                         self.connectBed(ble)
             else:
                 # To minimise any chance of contention, we don't heartbeat if a charWrite is in progress.
-                print("charWrite in progress, heartbeat skipped.")
+                self.logger.debug("charWrite in progress, heartbeat skipped.")
             time.sleep(10)
 
     # Separate out the bed connection to an infinite loop that can be called on init (or a communications failure).
     def connectBed(self, ble):
         while True:
             try:
-                print("Attempting to connect to bed.")
+                self.logger.debug("Attempting to connect to bed.")
                 self.device = ble.Peripheral(deviceAddr=self.addr, addrType='random')
-                print("Connected to bed.")
-                print("Enabling bed control.")
+                self.logger.info("Connected to bed.")
+                self.logger.debug("Enabling bed control.")
                 self.device.readCharacteristic(0x001e)
                 self.device.readCharacteristic(0x0020)
-                print("Bed control enabled.")
+                self.logger.info("Bed control enabled.")
                 return
-            except:
+            except Exception:
                 pass
-            print("Error connecting to bed, retrying in one second.")
+            self.logger.error("Error connecting to bed, retrying in one second.")
             time.sleep(1)
 
     # Separate out the command handling.
-    def sendCommand(self,name):
+    def sendCommand(self, name):
         cmd = self.commands.get(name, None)
         if cmd is None:
             # print, but otherwise ignore Unknown Commands.
-            print("Unknown Command, ignoring.")
+            self.logger.error(f"Unknown Command '{cmd}' -- ignoring.")
             return
         self.charWriteInProgress = True
         try:
             self.charWrite(cmd)
-        except:
-            print("Error sending command, attempting reconnect.")
+        except Exception:
+            self.logger.error("Error sending command, attempting reconnect.")
             start = time.time()
             self.connectBed(ble)
             end = time.time()
             if ((end - start) < 5):
                 try:
                     self.charWrite(self, cmd)
-                except:
-                    print("Command failed to transmit despite second attempt, dropping command.")
+                except Exception:
+                    self.logger.error("Command failed to transmit despite second attempt, dropping command.")
             else:
-                print("Bluetooth reconnect took more than five seconds, dropping command.")
+                self.logger.error("Bluetooth reconnect took more than five seconds, dropping command.")
         self.charWriteInProgress = False
 
     # Separate charWrite function.
     def charWrite(self, cmd):
-        print("Attempting to transmit command.")
+        self.logger.debug("Attempting to transmit command.")
         self.device.writeCharacteristic(0x0013, bytes.fromhex(cmd), withResponse=True)
-        print("Command sent successfully.")
+        self.logger.info("Command sent successfully.")
         return

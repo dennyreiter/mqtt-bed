@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "mqtt-bed"
+version = "1.0.0"
+description = "MQTT control for adjustable beds using Bluetooth"
+authors = ["Denny Reiter <denny@reiters.org>", "Aaron Vigal <admin@aaronvigal.com>", "Joshua <Final-Hawk>", "mishnz"]
+
+[tool.poetry.dependencies]
+python = "^3.9.1"
+paho-mqtt = "^1.5.1"
+asyncio-mqtt = "^0.8.0"
+enum-compat = "^0.0.3"
+pygatt = "^4.0.5"
+pyserial = "^3.5"
+pexpect = "^4.8.0"
+ptyprocess = "^0.7.0"
+bluepy = "^1.3.0"
+pyyaml = "^6.0.1"
+
+[project]
+name = "mqtt-bed"
+version = "1.0.0"
+description = "MQTT control for adjustable beds using Bluetooth"
+dependencies = [
+    "python >= 3.9.1",
+    "paho-mqtt==1.5.1",
+    "asyncio-mqtt==0.8.0",
+    "enum-compat==0.0.3",
+    "pygatt==4.0.5",
+    "pyserial==3.5",
+    "pexpect==4.8.0",
+    "ptyprocess==0.7.0",
+    "bluepy==1.3.0",
+    "pyyaml==6.0.1"
+]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
