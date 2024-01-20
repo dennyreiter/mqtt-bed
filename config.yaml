@@ -1,6 +1,10 @@
 # The bluetooth address used by your bed
 BED_ADDRESS: "00:00:00:00:00:00"
 
+# Bed controller type, supported values are
+# "serta", "jiecang", "dewertokin", and "linak"
+BED_TYPE: serta
+
 # MQTT credentials
 MQTT_USERNAME: mqtt-user
 MQTT_PASSWORD: mqtt-pass
@@ -8,14 +12,16 @@ MQTT_SERVER: 127.0.0.1
 MQTT_SERVER_PORT: 1883
 MQTT_TOPIC: bed
 
-# Bed controller type, supported values are
-# "serta", "jiecang", "dewertokin", and "linak"
-BED_TYPE: serta
-
-# MQTT hearbeat parameters
-MQTT_CHECKIN_TOPIC: checkIn/bed
-MQTT_CHECKIN_PAYLOAD: OK
-MQTT_ONLINE_PAYLOAD: online
-MQTT_SHUTDOWN_PAYLOAD: shutdown
+# MQTT topics & payloads
+MQTT_BASE_TOPIC: bed
+MQTT_BED_NAME: Bed
+MQTT_AVAILABILITY_TOPIC: availability
+MQTT_AVAILABLE_PAYLOAD: online
+MQTT_NOT_AVAILABLE_PAYLOAD: offline
 MQTT_QOS: 0
 RECONNECT_INTERVAL: 3  # Seconds
+
+# MQTT Automatic Discovery with Home Assistant
+# Currently only works with the Linak controller
+# https://www.home-assistant.io/integrations/mqtt/#mqtt-discovery
+MQTT_DISCOVERY: false
