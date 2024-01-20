@@ -104,9 +104,17 @@ You can check the status of the service at any time by running `sudo systemctl s
 You can also view the live logs from this service at any time by running `sudo journalctl -u mqtt-bed.service -f`
 
 ## Home Assistant Integration
+
 The YAML used in Home Assistant to integrate your bed will vary by your installation and bed type, but you can find example YAML for in the `homeassistant-script.yaml` file in this repository.
 
 In addition, it is common to run the MQTT Broker service in your Home Assitant installation if you do not have a broker running already, in which case you can use the [official Mosquito broker addon](https://github.com/home-assistant/addons/blob/master/mosquitto/DOCS.md). Once you have your broker setup, you will want to fill in your Home Assistant information in the MQTT config section of the `config.yaml` file.
+
+### Automatic Discovery
+For an even more seamless integration with Home Assistant, this project supports MQTT Discovery, which allows certain bed controllers to be automatically recognized and configured in Home Assistant. This feature simplifies the setup process and reduces the need for manual YAML configuration.
+
+To enable MQTT Discovery, set the `MQTT_DISCOVERY` option to `true` in the `config.yaml` file.
+
+> Note: MQTT Discovery is currently only supported by the Linak controller.
 
 ## Trusting Bluetooth device on Linux
 
