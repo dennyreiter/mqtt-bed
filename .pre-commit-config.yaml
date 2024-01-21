@@ -1,6 +1,13 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 19.10b0 # Replace by any tag/version: https://github.com/psf/black/tags
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
     hooks:
-      - id: black
-        language_version: python3 # Should be a command that runs python3.9+
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.13
+    hooks:
+      - id: ruff  # Run the linter.
+        args: [ '--select I', '--fix' ]
+      - id: ruff-format  # Run the formatter.

@@ -5,7 +5,7 @@ description = "MQTT control for adjustable beds using Bluetooth"
 authors = ["Denny Reiter <denny@reiters.org>", "Aaron Vigal <admin@aaronvigal.com>", "Joshua <Final-Hawk>", "mishnz"]
 
 [tool.poetry.dependencies]
-python = "^3.9.1"
+python = "^3.10"
 paho-mqtt = "^1.5.1"
 asyncio-mqtt = "^0.8.0"
 enum-compat = "^0.0.3"
@@ -21,7 +21,7 @@ name = "mqtt-bed"
 version = "1.0.0"
 description = "MQTT control for adjustable beds using Bluetooth"
 dependencies = [
-    "python >= 3.9.1",
+    "python >= 3.10",
     "paho-mqtt==1.5.1",
     "asyncio-mqtt==0.8.0",
     "enum-compat==0.0.3",

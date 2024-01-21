@@ -34,10 +34,11 @@ Note: This module will work with some other "Okin"/"DewertOkin" models.
 # ---------------------------------------------------------------------------
 # Imports
 # ---------------------------------------------------------------------------
-import bluepy.btle as ble
 import logging
-import time
 import threading
+import time
+
+import bluepy.btle as ble
 
 
 class dewertokinBLEController:
@@ -45,6 +46,8 @@ class dewertokinBLEController:
         self.logger = logging.getLogger(__name__)
         self.charWriteInProgress = False
         self.addr = addr
+        self.manufacturer = "DerwentOkin"
+        self.model = "A H Beard"
         self.commands = {
             "Flat Preset": "040210000000",
             "ZeroG Preset": "040200004000",
@@ -80,7 +83,9 @@ class dewertokinBLEController:
             if self.charWriteInProgress is False:
                 try:
                     cmd = self.commands.get("Keepalive NOOP", None)
-                    self.device.writeCharacteristic(0x0013, bytes.fromhex(cmd), withResponse=True)
+                    self.device.writeCharacteristic(
+                        0x0013, bytes.fromhex(cmd), withResponse=True
+                    )
                     self.logger.debug("Keepalive success!")
                 except Exception:
                     self.logger.error("Keepalive failed! (1/2)")
@@ -88,7 +93,9 @@ class dewertokinBLEController:
                         # We perform a second keepalive check 0.5 seconds later before reconnecting.
                         time.sleep(0.5)
                         cmd = self.commands.get("Keepalive NOOP", None)
-                        self.device.writeCharacteristic(0x0013, bytes.fromhex(cmd), withResponse=True)
+                        self.device.writeCharacteristic(
+                            0x0013, bytes.fromhex(cmd), withResponse=True
+                        )
                         self.logger.info("Keepalive success!")
                     except Exception:
                         # If both keepalives failed, we reconnect.
@@ -104,10 +111,10 @@ class dewertokinBLEController:
         while True:
             try:
                 self.logger.debug("Attempting to connect to bed.")
-                self.device = ble.Peripheral(deviceAddr=self.addr, addrType='random')
+                self.device = ble.Peripheral(deviceAddr=self.addr, addrType="random")
                 self.logger.info("Connected to bed.")
                 self.logger.debug("Enabling bed control.")
-                self.device.readCharacteristic(0x001e)
+                self.device.readCharacteristic(0x001E)
                 self.device.readCharacteristic(0x0020)
                 self.logger.info("Bed control enabled.")
                 return
@@ -117,7 +124,7 @@ class dewertokinBLEController:
             time.sleep(1)
 
     # Separate out the command handling.
-    def sendCommand(self, name):
+    def send_command(self, name):
         cmd = self.commands.get(name, None)
         if cmd is None:
             # print, but otherwise ignore Unknown Commands.
@@ -131,13 +138,17 @@ class dewertokinBLEController:
             start = time.time()
             self.connectBed(ble)
             end = time.time()
-            if ((end - start) < 5):
+            if (end - start) < 5:
                 try:
                     self.charWrite(self, cmd)
                 except Exception:
-                    self.logger.error("Command failed to transmit despite second attempt, dropping command.")
+                    self.logger.error(
+                        "Command failed to transmit despite second attempt, dropping command."
+                    )
             else:
-                self.logger.error("Bluetooth reconnect took more than five seconds, dropping command.")
+                self.logger.error(
+                    "Bluetooth reconnect took more than five seconds, dropping command."
+                )
         self.charWriteInProgress = False
 
     # Separate charWrite function.

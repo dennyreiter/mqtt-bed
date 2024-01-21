@@ -4,6 +4,8 @@ import pygatt
 class sertaBLEController:
     def __init__(self, addr):
         self.addr = addr
+        self.manufacturer = "Serta"
+        self.model = "Motion Perfect III"
         self.commands = {
             "Flat Preset": "e5fe1600000008fe",
             "ZeroG Preset": "e5fe1600100000f6",
@@ -23,7 +25,7 @@ class sertaBLEController:
         }
         self.adapter = pygatt.GATTToolBackend()
 
-    def sendCommand(self, name):
+    def send_command(self, name):
         cmd = self.commands.get(name, None)
         if cmd is None:
             raise Exception("Command not found: " + str(name))
