@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import json
 import logging
+import ssl
 from contextlib import AsyncExitStack
 
 import yaml
@@ -25,6 +26,8 @@ MQTT_USERNAME = config.get("MQTT_USERNAME", "mqttbed")
 MQTT_PASSWORD = config.get("MQTT_PASSWORD", "mqtt-bed")
 MQTT_SERVER = config.get("MQTT_SERVER", "127.0.0.1")
 MQTT_SERVER_PORT = config.get("MQTT_SERVER_PORT", 1883)
+MQTT_SSL = config.get("MQTT_SSL", False)
+SSL_CA_PATH = config.get("SSL_CA_PATH", None)
 # MQTT Topics & Payloads --------------------------------------------------------
 MQTT_BASE_TOPIC = config.get("MQTT_BASE_TOPIC", "bed")
 MQTT_AVAILABILITY_TOPIC = config.get("MQTT_AVAILABILITY_TOPIC", "availability")
@@ -48,12 +51,20 @@ async def bed_loop(ble):
         tasks = set()
         stack.push_async_callback(cancel_tasks, tasks)
 
+        # Create TLS context if needed
+        tls_context = None
+        if MQTT_SSL:
+            tls_context = ssl.create_default_context()
+            if SSL_CA_PATH:
+                tls_context.load_verify_locations(cafile=SSL_CA_PATH)
+
         # Connect to the MQTT broker
         client = Client(
             MQTT_SERVER,
             port=MQTT_SERVER_PORT,
             username=MQTT_USERNAME,
             password=MQTT_PASSWORD,
+            tls_context=tls_context,
         )
         await stack.enter_async_context(client)
 
