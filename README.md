@@ -5,6 +5,7 @@ A project to enable MQTT control for BLE adjustable beds. Currently supported ad
 - Serta adjustable beds with Bluetooth, like the [Serta Motion Perfect III](https://www.serta.com/sites/ssb/serta.com/uploads/2016/adjustable-foundations/MotionPerfectIII_Manual_V004_04142016.pdf)
 - 'Glide' with the jiecang BLUE controller (Dream Motion app)
 - 'A H Beard' with the DerwentOkin BLE controller ("Comfort Enhancement 2" aka "Comfort Plus" app)
+- 'HankookGallery' with the DerwentOkin BLE controller [OKIN Comfort Bed app](https://apps.apple.com/kr/app/okin-comfort-bed/id1149710773) - (It maybe old version of 'Compfort Plus' app)
 - Linak KA20IC with the "Bed Control" app
 
 

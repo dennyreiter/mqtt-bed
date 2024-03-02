@@ -9,6 +9,7 @@ import yaml
 from asyncio_mqtt import Client, MqttError
 
 from controllers.dewertokin import dewertokinBLEController
+from controllers.dewertokin_old import dewertokinOldBLEController
 from controllers.jiecang import jiecangBLEController
 from controllers.linak import linakBLEController
 from controllers.serta import sertaBLEController
@@ -206,6 +207,8 @@ async def main():
         ble = jiecangBLEController(BED_ADDRESS)
     elif BED_TYPE == "dewertokin":
         ble = dewertokinBLEController(BED_ADDRESS)
+    elif BED_TYPE == "dewertokin_old":
+        ble = dewertokinOldBLEController(BED_ADDRESS)
     elif BED_TYPE == "linak":
         ble = linakBLEController(BED_ADDRESS)
     else:
