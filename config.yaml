@@ -2,7 +2,7 @@
 BED_ADDRESS: "00:00:00:00:00:00"
 
 # Bed controller type, supported values are
-# "serta", "jiecang", "dewertokin", and "linak"
+# "serta", "jiecang", "dewertokin", "dewertokin_old", and "linak"
 BED_TYPE: serta
 
 # MQTT credentials
