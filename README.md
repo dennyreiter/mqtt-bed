@@ -19,7 +19,7 @@ pipx install poetry
 pipx ensurepath
 ```
 
-You will need to log out and log back in for the PATh chnages to take effect.
+You will need to log out and log back in for the PATH changes to take effect.
 You can then install the necessary Python dependencies:
 
 ```sh
@@ -27,14 +27,14 @@ cd mqtt-bed
 poetry install
 ```
 
-This will automatically istall all of the necessary dependencies outlined in the `pyproject.toml` file. If you prefer not to use Poetry, you can still do the typical `pip3 install .` but will need to maintain your own virtual environment.
+This will automatically install all of the necessary dependencies outlined in the `pyproject.toml` file. If you prefer not to use Poetry, you can still do the typical `pip3 install .` but will need to maintain your own virtual environment.
 
 
 ## Configuration
-To configure all of the setting sused in the program, such as the MQTT credentials, bluetooth address of your bed, etc, you will need to modify the values in `config.yaml`. This setp is **essential** to getting your integration functional.
+To configure all of the settings used in the program, such as the MQTT credentials, bluetooth address of your bed, etc, you will need to modify the values in `config.yaml`. This setup is **essential** to getting your integration functional.
 
 ### Bed address
-There are numerous ways to get ther address for your bed. If you can already control the bed via your phone, check the list of paired bluetooth devices, and find the address for your bed's connection in the format `00:00:00:00:00:00`. 
+There are numerous ways to get the address for your bed. If you can already control the bed via your phone, check the list of paired bluetooth devices, and find the address for your bed's connection in the format `00:00:00:00:00:00`. 
 
 If you have a Serta bed, and are using the [Serta MP Remote app](https://apk-dl.com/serta-mp-remote/), you can find the mac address there.
 
@@ -154,7 +154,7 @@ If your adjustable bed is not integrated into this repository yet, and you creat
 
 To integrate your own bed, you should follow the examples in `controllers/dewertokin.py` and `controllers/linak.py` utilizing the bluepy package rather than the deprecated pygatt/gatttool integrations.
 
-Just cretae your own controller class with an `__init__` function to kick off the connection to your bed, and add your contorller to the list of valid controllers in the `main()` function of `mqtt-bed.py`. 
+Just create your own controller class with an `__init__` function to kick off the connection to your bed, and add your controller to the list of valid controllers in the `main()` function of `mqtt-bed.py`. 
 
 
 ## Resources
